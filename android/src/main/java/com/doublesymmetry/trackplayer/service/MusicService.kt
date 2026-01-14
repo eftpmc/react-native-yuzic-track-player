@@ -68,6 +68,7 @@ class MusicService : HeadlessJsMediaService() {
     private var playerCommands: Player.Commands? = null
     private var customLayout: List<CommandButton> = listOf()
     private var lastWake: Long = 0
+    private var lastAudioSessionId: Int = 0
     var onStartCommandIntentValid: Boolean = true
 
     fun acquireWakeLock() {
@@ -176,6 +177,11 @@ class MusicService : HeadlessJsMediaService() {
             super.onStartCommand(intent, flags, startId)
         }
         return START_STICKY
+    }
+
+    @MainThread
+    fun getAudioSessionId(): Int {
+        return lastAudioSessionId
     }
 
     @MainThread
@@ -529,6 +535,17 @@ class MusicService : HeadlessJsMediaService() {
         scope.launch {
             event.stateChange.collect {
                 emit(MusicEvents.PLAYBACK_STATE, getPlayerStateBundle(it))
+
+                val sessionId = player.exoPlayer.audioSessionId
+                if (sessionId != 0 && sessionId != lastAudioSessionId) {
+                lastAudioSessionId = sessionId
+
+                val bundle = Bundle().apply {
+                    putInt("audioSessionId", sessionId)
+                }
+
+                emit("playback-audio-session-id", bundle)
+                }
 
                 if (it == AudioPlayerState.ENDED && player.nextItem == null) {
                     emitQueueEndedEvent()

@@ -41,6 +41,7 @@ export interface Spec extends TurboModule {
   ): Promise<void>;
   updateNowPlayingMetadata(metadata: UnsafeObject): Promise<void>;
   setQueue(tracks: UnsafeObject[]): Promise<void>;
+  getAudioSessionId(): Promise<number>;
   getQueue(): Promise<UnsafeObject[]>;
   setRepeatMode(mode: number): Promise<number>;
   getRepeatMode(): Promise<number>;

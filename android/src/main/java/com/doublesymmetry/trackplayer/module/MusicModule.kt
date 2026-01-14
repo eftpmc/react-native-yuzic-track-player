@@ -440,6 +440,19 @@ class MusicModule(reactContext: ReactApplicationContext) : NativeTrackPlayerSpec
         callback.resolve(null)
     }
 
+    @ReactMethod
+    fun getAudioSessionId(promise: Promise) {
+        if (!isServiceBound || !::musicService.isInitialized) {
+            promise.reject(
+                "player_not_initialized",
+                "The player is not initialized."
+            )
+            return
+        }
+
+        promise.resolve(musicService.getAudioSessionId())
+    }
+
     override fun getVolume(callback: Promise) = launchInScope {
         if (verifyServiceBoundOrReject(callback)) return@launchInScope
 
